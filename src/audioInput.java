@@ -237,13 +237,13 @@ public class audioInput extends javax.swing.JFrame {
     private void startGame() {
         final Insets insets = getInset();
         setVisible(false);
-        pong ball = new pong();
-        final pong autobat = new pong(0,16,10,120);
-        final pong bat = new pong(0,16,10,120);
+        ball gameBall = new ball();
+        final bat autobat = new bat(0,16,10,120);
+        final bat playerBat = new bat(0,16,10,120);
         autobat.setPos((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - insets.right - autobat.pingPongWindow.getWidth()), (int) autobat.getPosY());
-        bat.setPos(0, (int) bat.getPosY());
-        bat.pingPongWindow.setFocusable(true);
-        bat.pingPongWindow.addKeyListener(new KeyListener(){
+        playerBat.setPos(0, (int) playerBat.getPosY());
+        playerBat.pingPongWindow.setFocusable(true);
+        playerBat.pingPongWindow.addKeyListener(new KeyListener(){
 
             @Override
             public void keyTyped(KeyEvent e) {
@@ -253,46 +253,44 @@ public class audioInput extends javax.swing.JFrame {
             public void keyPressed(KeyEvent e) {
                 int posY = 0;
                 if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    bat.setSpeedY(16);
-                    posY = Math.min((int)(bat.getPosY() + bat.speedY), (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - bat.pingPongWindow.getHeight()));
+                    playerBat.setSpeedY(16);
+                    posY = Math.min((int)(playerBat.getPosY() + playerBat.getSpeedY()), (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - playerBat.pingPongWindow.getHeight()));
                 }
                 else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    bat.setSpeedY(-16);
-                    posY = Math.max((int)(bat.getPosY() + bat.speedY), insets.top);
+                    playerBat.setSpeedY(-16);
+                    posY = Math.max((int)(playerBat.getPosY() + playerBat.getSpeedY()), insets.top);
                 }
-                bat.setPos((int) (bat.getPosX()), posY);
+                playerBat.setPos((int) (playerBat.getPosX()), posY);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                bat.setSpeedY(0);
+                playerBat.setSpeedY(0);
             }
             
         });
-        pong pArray[] = {bat, ball};
-        tick(pArray, pArray);
+        bat autoBatArray[] = {autobat};
+        tick(gameBall, playerBat, autoBatArray);
     }
     
-    private void tick(final movers move[], final pong pongs[]) {
+    private void tick(final ball gameBall, final bat playerBat, final bat autoBats[]) {
         Timer t = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pongs[1].movePong(pongs[0], 'l');
+                if(gameBall.hitOtherBat(playerBat, 'l')){autoBats[0].calculateAutoMove(gameBall);}
+                gameBall.hitOtherBat(autoBats[0], 'r');
+                gameBall.moveBall();
+                autoBats[0].autoMove();
             }
         });
-//        t.setRepeats(false);
         t.start();
         
     }
     
-    public static interface movers {
-     public void movePong();
-    }
-    
-    public class pong implements movers {
+    public class pong {
         private double speedX, speedY;
-        private pingPong pingPongWindow;
-        Insets insets = getInset();
+        public pingPong pingPongWindow;
+        public Insets insets;
         public double getSpeedX() {return speedX;};
         public double getSpeedY() {return speedY;};
         public void setSpeedX(double speed){speedX = speed;}
@@ -308,6 +306,7 @@ public class audioInput extends javax.swing.JFrame {
         }
         public void setPos(int x, int y){pingPongWindow.setLocation(x, y);}
         public pong() {
+            this.insets = getInset();
             speedX = 25;
             speedY = 25;
             this.pingPongWindow = new pingPong();
@@ -316,34 +315,103 @@ public class audioInput extends javax.swing.JFrame {
             pingPongWindow.setLayout(null);   
         }
         public pong(double speedX, double speedY, int width, int height) {
+            this.insets = getInset();
             this.speedX = speedX;
             this.speedY = speedY;
             this.pingPongWindow = new pingPong();
             pingPongWindow.setSize(width, height);
             pingPongWindow.setVisible(true);
         }
-        public void movePong(pong otherPong, char direction) {
-            hitOtherPong(otherPong, direction);
-            movePong();
+    }
+    public class ball extends pong {
+        private int points;
+        public ball() {
+            super();
+            points = 0;
         }
-        public void movePong() {
+        public ball(double speedX, double speedY, int width, int height) {
+            super(speedX, speedY, width, height);
+            points = 0;
+        }
+        public int getPoints() { return points; }
+        public void setPoints(int points) { this.points = points; }
+        public void moveBall(bat otherBat, char direction) {
+            hitOtherBat(otherBat, direction);
+            moveBall();
+        }
+        public void moveBall() {
             hitBottom();
             hitRight();
-            pingPongWindow.setLocation((int)(getPosX() + speedX), (int)(getPosY() + speedY));
+            pingPongWindow.setLocation((int)(getPosX() + getSpeedX()), (int)(getPosY() + getSpeedY()));
         }
         private boolean hitRight() {
-            if(getPosX() + pingPongWindow.getWidth() + speedX + insets.left >= Toolkit.getDefaultToolkit().getScreenSize().getWidth()){ setSpeedX(-speedX); return true;}
+            if(getPosX() + pingPongWindow.getWidth() + getSpeedX() + insets.left >= Toolkit.getDefaultToolkit().getScreenSize().getWidth()){ setSpeedX(-getSpeedX()); return true;}
             return false;
         }
         private boolean hitBottom() {
-            if(getPosY() + pingPongWindow.getHeight() + speedY + insets.bottom >= Toolkit.getDefaultToolkit().getScreenSize().getHeight() || getPosY() + speedY <= insets.top){ setSpeedY(-speedY); return true;}
+            if(getPosY() + pingPongWindow.getHeight() + getSpeedY() + insets.bottom >= Toolkit.getDefaultToolkit().getScreenSize().getHeight() || getPosY() + getSpeedY() <= insets.top){ setSpeedY(-getSpeedY()); return true;}
             return false;
         }
-        private boolean hitOtherPong(pong otherPong, char direction) {
-            if(direction == 'l' && getPosX() + speedX <= otherPong.getPosX() + otherPong.pingPongWindow.getWidth() && otherPong.getPosY() + otherPong.pingPongWindow.getHeight() + otherPong.getSpeedY() >= getPosY() + speedY && getPosY() + pingPongWindow.getHeight() + speedY >= otherPong.getPosY() + otherPong.getSpeedY()){ speedX = -speedX; speedY += otherPong.getSpeedY(); return true;}
+        private boolean hitOtherBat(bat otherBat, char direction) {
+            if(hitSide(otherBat, direction) && (otherBat.getPosY() + otherBat.pingPongWindow.getHeight() + otherBat.getSpeedY() >= getPosY() + getSpeedY()) && (getPosY() + pingPongWindow.getHeight() + getSpeedY() >= otherBat.getPosY() + otherBat.getSpeedY())){ setSpeedX(-getSpeedX()); setSpeedY(getSpeedY() + otherBat.getSpeedY()); return true;}
+            return false;
+        }
+        private boolean hitSide(bat otherBat, char direction) {
+            if((direction == 'l' && (getPosX() + getSpeedX() <= otherBat.getPosX() + otherBat.pingPongWindow.getWidth())) || (direction == 'r' && (getPosX() + getSpeedX() + pingPongWindow.getWidth() >= otherBat.getPosX()))){ return true; }
+            return false;
+        }
+        private boolean losePoints(bat otherBat, char direction) {
+            if(hitSide(otherBat, direction) && !hitOtherBat(otherBat, direction)) { return true; }
             return false;
         }
 
+
+    }
+    public class bat extends pong {
+        public bat() {
+            super();
+        }
+        public bat(double speedX, double speedY, int width, int height) {
+            super(speedX, speedY, width, height);
+        }
+        public double getPositionOnHit(double time, double ballSpeed, double ballPosition, double ballHeight) {
+            double availableHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.top - insets.bottom - ballHeight;
+            if(ballSpeed * time + ballPosition >= insets.top && ballSpeed * time + ballPosition <= availableHeight) { return ballSpeed * time + ballPosition; }
+            else {
+                double remainingTime, newBallPosition, newBallSpeed = -ballSpeed;
+                if(ballSpeed < 0) { 
+                    remainingTime = time - (insets.top - ballPosition) / ballSpeed;
+                    newBallPosition = insets.top;
+                }
+                else {
+                    remainingTime = time - (availableHeight - ballPosition) / ballSpeed;
+                    newBallPosition = availableHeight;
+                }
+                return getPositionOnHit(remainingTime, newBallSpeed, newBallPosition, ballHeight);
+            }
+        }
+        public void calculateAutoMove(ball gameBall) {
+            double time = (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - insets.left - insets.right - gameBall.pingPongWindow.getWidth()) / gameBall.getSpeedX();
+            double finalPosition = getPositionOnHit(time, gameBall.getSpeedY(), gameBall.getPosY(), gameBall.pingPongWindow.getHeight());
+            double requiredPosition;
+            if(finalPosition <= insets.top + pingPongWindow.getHeight()) { requiredPosition = insets.top; }
+            else if(finalPosition >= Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - pingPongWindow.getHeight()) { requiredPosition = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - pingPongWindow.getHeight();}
+            else {
+                requiredPosition = finalPosition - ((double)pingPongWindow.getHeight())/2;
+            }
+            double requiredSpeed = Math.max(-16, Math.min((requiredPosition - getPosY())/time, 16));
+            setSpeedY(requiredSpeed);
+        }
+        public void autoMove() {
+            double posY;
+            if(getSpeedY() >= 0) {
+                posY = Math.min((getPosY() + getSpeedY()), (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - pingPongWindow.getHeight()));                
+            }
+            else {
+                posY = Math.max((getPosY() + getSpeedY()), insets.top);
+            }
+            setPos((int) (getPosX()), (int) posY);
+        }
     }
     
     /**
