@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
@@ -235,6 +236,11 @@ public class audioInput extends javax.swing.JFrame {
 
     }
     private void startGame() {
+        scoreFrame scrfrm = new scoreFrame();
+        scrfrm.setAchooScore(0);
+        scrfrm.setLoserScore(0);
+        com.sun.awt.AWTUtilities.setWindowOpacity(scrfrm,0.65f); 
+        scrfrm.setVisible(true);
         final Insets insets = getInset();
         setVisible(false);
         ball gameBall = new ball();
@@ -247,7 +253,7 @@ public class audioInput extends javax.swing.JFrame {
 
             @Override
             public void keyTyped(KeyEvent e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
             @Override
             public void keyPressed(KeyEvent e) {
@@ -270,17 +276,21 @@ public class audioInput extends javax.swing.JFrame {
             
         });
         bat autoBatArray[] = {autobat};
-        tick(gameBall, playerBat, autoBatArray);
+        tick(gameBall, playerBat, autoBatArray, scrfrm);
     }
     
-    private void tick(final ball gameBall, final bat playerBat, final bat autoBats[]) {
+    private void tick(final ball gameBall, final bat playerBat, final bat autoBats[], final scoreFrame scrfrm) {
         Timer t = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                boolean result = (gameBall.getPosX() + gameBall.getSpeedX() <= playerBat.getPosX() + playerBat.pingPongWindow.getWidth());
+                System.out.println(result);
                 if(gameBall.hitOtherBat(playerBat, 'l')){autoBats[0].calculateAutoMove(gameBall);}
                 gameBall.hitOtherBat(autoBats[0], 'r');
                 gameBall.moveBall();
                 autoBats[0].autoMove();
+                if(gameBall.losePoints(playerBat, 'l')){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 5); }
+                if(gameBall.losePoints(autoBats[0], 'r')){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 5); }
             }
         });
         t.start();
@@ -345,7 +355,7 @@ public class audioInput extends javax.swing.JFrame {
             pingPongWindow.setLocation((int)(getPosX() + getSpeedX()), (int)(getPosY() + getSpeedY()));
         }
         private boolean hitRight() {
-            if(getPosX() + pingPongWindow.getWidth() + getSpeedX() + insets.left >= Toolkit.getDefaultToolkit().getScreenSize().getWidth()){ setSpeedX(-getSpeedX()); return true;}
+            if((getPosX() + pingPongWindow.getWidth() + getSpeedX() + insets.right >= Toolkit.getDefaultToolkit().getScreenSize().getWidth()) || (getPosX() + getSpeedX() <= insets.left)){ setSpeedX(-getSpeedX()); return true;}
             return false;
         }
         private boolean hitBottom() {
