@@ -1,0 +1,7 @@
+#JSGF V1.0;
+grammar hello;
+
+public <result> = ( <love> | <surprise> ) ;
+<name> = ( archit );
+<love> = ( I love ) ( you )* <name>;
+<surprise> = ( I | want | my )* ( surprise | gift );
