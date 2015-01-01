@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -235,6 +236,14 @@ public class audioInput extends javax.swing.JFrame {
         return insets;
 
     }
+    private void resetGame() {
+        Frame frameArray[] = Frame.getFrames();
+        for(int i=0; i < frameArray.length; i++) {
+            if (frameArray[i].getName() != "My Baby :*") {
+                frameArray[i].dispose();
+            }
+        }
+    }
     private void startGame() {
         scoreFrame scrfrm = new scoreFrame();
         scrfrm.setAchooScore(0);
@@ -244,7 +253,7 @@ public class audioInput extends javax.swing.JFrame {
         final Insets insets = getInset();
         setVisible(false);
         ball gameBall = new ball();
-        final bat autobat = new bat(0,16,10,120);
+        final bat autobat = new bat(0,0,10,120);
         final bat playerBat = new bat(0,16,10,120);
         autobat.setPos((int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - insets.right - autobat.pingPongWindow.getWidth()), (int) autobat.getPosY());
         playerBat.setPos(0, (int) playerBat.getPosY());
@@ -257,6 +266,10 @@ public class audioInput extends javax.swing.JFrame {
             }
             @Override
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == 'r') {
+                    resetGame();
+                    startGame();
+                }
                 int posY = 0;
                 if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     playerBat.setSpeedY(16);
@@ -283,14 +296,12 @@ public class audioInput extends javax.swing.JFrame {
         Timer t = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean result = (gameBall.getPosX() + gameBall.getSpeedX() <= playerBat.getPosX() + playerBat.pingPongWindow.getWidth());
-                System.out.println(result);
-                if(gameBall.hitOtherBat(playerBat, 'l')){autoBats[0].calculateAutoMove(gameBall);}
-                gameBall.hitOtherBat(autoBats[0], 'r');
+                boolean playerSideHit = gameBall.hitSide(playerBat, 'l'), autoBatSideHit = gameBall.hitSide(autoBats[0], 'r'),playerHit = gameBall.hitOtherBat(playerBat, 'l'), autoBatHit = gameBall.hitOtherBat(autoBats[0], 'r');
+                if(playerSideHit){autoBats[0].calculateAutoMove(gameBall);}
                 gameBall.moveBall();
                 autoBats[0].autoMove();
-                if(gameBall.losePoints(playerBat, 'l')){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 5); }
-                if(gameBall.losePoints(autoBats[0], 'r')){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 5); }
+                if(playerSideHit && !playerHit){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 10); }
+                if(autoBatSideHit && !autoBatHit){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 10); }
             }
         });
         t.start();
@@ -385,7 +396,7 @@ public class audioInput extends javax.swing.JFrame {
             super(speedX, speedY, width, height);
         }
         public double getPositionOnHit(double time, double ballSpeed, double ballPosition, double ballHeight) {
-            double availableHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.top - insets.bottom - ballHeight;
+            double availableHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - insets.bottom - ballHeight;
             if(ballSpeed * time + ballPosition >= insets.top && ballSpeed * time + ballPosition <= availableHeight) { return ballSpeed * time + ballPosition; }
             else {
                 double remainingTime, newBallPosition, newBallSpeed = -ballSpeed;
@@ -394,7 +405,7 @@ public class audioInput extends javax.swing.JFrame {
                     newBallPosition = insets.top;
                 }
                 else {
-                    remainingTime = time - (availableHeight - ballPosition) / ballSpeed;
+                    remainingTime = time - (availableHeight - ballPosition ) / ballSpeed;
                     newBallPosition = availableHeight;
                 }
                 return getPositionOnHit(remainingTime, newBallSpeed, newBallPosition, ballHeight);
@@ -402,6 +413,7 @@ public class audioInput extends javax.swing.JFrame {
         }
         public void calculateAutoMove(ball gameBall) {
             double time = (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - insets.left - insets.right - gameBall.pingPongWindow.getWidth()) / gameBall.getSpeedX();
+            time = Math.abs(time);
             double finalPosition = getPositionOnHit(time, gameBall.getSpeedY(), gameBall.getPosY(), gameBall.pingPongWindow.getHeight());
             double requiredPosition;
             if(finalPosition <= insets.top + pingPongWindow.getHeight()) { requiredPosition = insets.top; }

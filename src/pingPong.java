@@ -28,7 +28,9 @@ public class pingPong extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("pingpong");
         setAlwaysOnTop(true);
+        setName("pingpong"); // NOI18N
         setUndecorated(true);
         setResizable(false);
 
