@@ -1,3 +1,4 @@
+import edu.cmu.sphinx.demo.helloworld.SweetVoice;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -12,7 +13,10 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import sun.font.TextLabel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -36,6 +41,9 @@ import javax.swing.UIManager;
  * @author archit
  */
 public class audioInput extends javax.swing.JFrame {
+    
+    private Timer timer;
+    
     /**
      * Creates new form audioInput
      */
@@ -47,6 +55,7 @@ public class audioInput extends javax.swing.JFrame {
         setBounds((int)width, (int)height, (int)width*2, (int)height*2);
         talkText.setLineWrap(true);
         nextButton.setVisible(false);
+        testLabel.setVisible(false);
     }
     
     public static void initpage()  ///Initialises the Registration page
@@ -63,20 +72,23 @@ public class audioInput extends javax.swing.JFrame {
         }
     }  
     
-    private void getDelay(final int delay, final ArrayList<String> text) {
-        Timer t = new Timer(delay * 100, new ActionListener() {
+    private void getDelay(final int delay, final ArrayList<String> text, final boolean setFalseFlag, final boolean finalFlag) {
+        Timer t = new Timer(delay * 1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (text.size() >= 1) {
                     talkText.setText("\n\n" + text.get(0));
                     ArrayList<String> newText = text;
                     newText.remove(0);
-                    getDelay(delay, newText);
+                    getDelay(delay, newText, setFalseFlag, finalFlag);
+                }
+                else if(setFalseFlag){
+                    nextButton.setVisible(true);
+                    jScrollPane1.setVisible(false);
                 }
                 else {
-                    nextButton.setVisible(true);
-                    talkText.setOpaque(false);
-                    jScrollPane1.setVisible(false);
+                    if(!finalFlag){nextButton.setVisible(true);}
+                    else {deploy();}
                 }
             }
         });
@@ -84,12 +96,124 @@ public class audioInput extends javax.swing.JFrame {
         t.start();
     }
     
+    
     private void startAwesome() {
-        String[] loveArray = {"Hi pucchi :*","You're the best thing that ever happened to me","I'm sorry if I'm not good enough for you","I'll never be :P","Yes, this windows is sucky. You can't close it. It's designed that way. Deal with it :P"};
+        String[] loveArray = {"Hi pucchi :*","You're the best thing that ever happened to me","I'm sorry if I'm not good enough for you","I'll never be :P","Yes, this windows is sucky. You can't close it. I designed it that way. Deal with it :P"};
         ArrayList<String> text = new ArrayList<>(Arrays.asList(loveArray));
-        getDelay(2,text);
+        getDelay(3,text, true, false);
     }
+    
+    private void nextButtonListeningPerformed(java.awt.event.ActionEvent evt) {                                           
+        String[] talkArray = {"\n\nYaaaaay!! My Achoo won! Wooo hooo :D :*", "Okay, now say those love words <3", "So, do you want your surprise? :D", "Say I want my suprise"};
+        String[] tryAgain = {"Aww.. It's okay. Try again pucchi :*", "Ek baar aur :*"};
+        nextButton.setVisible(false);
+        String output = "";        
+        SweetVoice recognizer = new SweetVoice();
+        output = recognizer.getWords();
+        if(output.trim().compareTo("i love you archit") != 0 && output.trim().compareTo("i love archit") != 0 ) {
+            int rind = (int)(Math.random() * tryAgain.length);
+            ArrayList<String> tryAgainList = new ArrayList<>();
+            tryAgainList.add("You said: " + output);
+            tryAgainList.add(tryAgain[rind]);
+            tryAgainList.add(talkArray[1]);
+            getDelay(2, tryAgainList, false, false);
+        }
+        else {
+            ArrayList<String> tryAgainList = new ArrayList<>();
+            tryAgainList.add("You said: " + output);
+            tryAgainList.add("Aww.. So sweet");
+            tryAgainList.add(talkArray[2]);
+            tryAgainList.add(talkArray[3]);
+            nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+            nextButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    nextButtonListening2Performed(evt);
+                }
+            });
 
+            getDelay(2, tryAgainList, false, false);
+        }
+
+    }                              
+    
+    private void nextButtonListening2Performed(java.awt.event.ActionEvent evt) {                                           
+        String[] talkArray = {"\n\nYaaaaay!! My Achoo won! Wooo hooo :D :*", "Okay, now say those love words <3", "So, do you want your surprise? :D", "Say I want my suprise"};
+        String[] tryAgain = {"Aww.. It's okay. Try again pucchi :*", "Ek baar aur :*"};
+        nextButton.setVisible(false);
+        String output = "";        
+        SweetVoice recognizer = new SweetVoice();
+        output = recognizer.getWords();
+        if(output.trim().compareTo("i want my surprise") != 0 && output.trim().compareTo("i want my gift") != 0 ) {
+            int rind = (int)(Math.random() * tryAgain.length);
+            ArrayList<String> tryAgainList = new ArrayList<>();
+            tryAgainList.add("You said: " + output);
+            tryAgainList.add(tryAgain[rind]);
+            tryAgainList.add(talkArray[3]);
+            getDelay(2, tryAgainList, false, false);
+        }
+        else {
+            ArrayList<String> tryAgainList = new ArrayList<>();
+            tryAgainList.add("You said: " + output);
+            tryAgainList.add("Aww.. Shoo cute");
+            tryAgainList.add("There you go :)");
+            getDelay(2, tryAgainList, false, true);
+        }
+
+    }
+    
+    private void deploy() {
+          setVisible(false);
+          URL url = this.getClass().getResource("Photos");
+          File photos = null;
+          try {
+            photos = new File(url.toURI());
+          } catch (URISyntaxException ex) {
+            Logger.getLogger(audioInput.class.getName()).log(Level.SEVERE, null, ex);
+          }
+          File newDir = new File(System.getProperty("user.home")+"/achooPhotos");
+          if(!newDir.exists())newDir.mkdir();
+          File[] listFiles = photos.listFiles();
+          for(int i=0;i<listFiles.length;i++) {
+              File tempFile = listFiles[i];
+              tempFile.renameTo(new File(newDir.getAbsolutePath()+"/"+tempFile.getName()));              
+          }
+          File script = null;
+          try {
+            script = new File(this.getClass().getResource("Script").toURI()).listFiles()[0];
+          } catch (URISyntaxException ex) {
+            Logger.getLogger(audioInput.class.getName()).log(Level.SEVERE, null, ex);
+          }
+          File newScriptDir = new File(System.getProperty("user.home")+"/achooScripts");
+          if(!newScriptDir.exists())newScriptDir.mkdir();
+          script.renameTo(new File(newScriptDir.getAbsolutePath()+"/script.sh"));
+          String[] env = {"PATH=/bin:/usr/bin/"};
+          String[] cmd = new String[]{"/bin/bash", "-c" ,"bash " + newScriptDir.getAbsolutePath()+"/script.sh"};
+          try {
+            Process pr = Runtime.getRuntime().exec(cmd, env);
+          } catch (IOException ex) {
+            Logger.getLogger(audioInput.class.getName()).log(Level.SEVERE, null, ex);
+          }
+    }
+    
+    private void nextLevel() {
+        resetGame();
+        setVisible(true);
+        jScrollPane1.setVisible(true);
+        nextButton.setVisible(false);
+        String[] talkArray = {"\n\nYaaaaay!! My Achoo won! Wooo hooo :D :*", "Okay, now say those love words <3", "\n\nSo, do you want your surprise? :D", "\n\nSay I want my suprise"};
+        String[] tryAgain = {"\n\nAww.. It's okay. Try again pucchi :*", "\n\nEk baar aur :*"};
+        talkText.setText(talkArray[0]);
+        ArrayList<String> initialText = new ArrayList<>(Arrays.asList(Arrays.copyOfRange(talkArray, 1, 2)));
+        getDelay(5, initialText, false, false);
+        nextButton.setText("Click to start speaking");
+        nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+        nextButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextButtonListeningPerformed(evt);
+            }
+        });
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -108,7 +232,7 @@ public class audioInput extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         talkText = new javax.swing.JTextArea();
         nextButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        testLabel = new javax.swing.JLabel();
 
         jInternalFrame1.setVisible(true);
 
@@ -171,7 +295,10 @@ public class audioInput extends javax.swing.JFrame {
         setTitle("My Baby :*");
         setAlwaysOnTop(true);
         setBackground(new java.awt.Color(254, 254, 254));
+        setFocusable(false);
+        setFocusableWindowState(false);
         setName("audioInput"); // NOI18N
+        setUndecorated(true);
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -207,27 +334,13 @@ public class audioInput extends javax.swing.JFrame {
         });
         getContentPane().add(nextButton, new java.awt.GridBagConstraints());
 
-        jLabel1.setText("jLabel1");
-        getContentPane().add(jLabel1, new java.awt.GridBagConstraints());
+        testLabel.setToolTipText("");
+        getContentPane().add(testLabel, new java.awt.GridBagConstraints());
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextButtonActionPerformed
-
-//        try {
-//            Process p = Runtime.getRuntime().exec("notify-send bababa");
-//        } catch (IOException ex) {
-//            Logger.getLogger(audioInput.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        try {
-//            File photoPath = new File("Photos/1.png");
-//            System.out.println(photoPath.getAbsolutePath().toString());
-//            BufferedImage myPicture = ImageIO.read(new File("Photos/1.png"));
-//            jLabel1.setIcon(new ImageIcon(myPicture));
-//        } catch (IOException ex) {
-//            Logger.getLogger(audioInput.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         startGame();
     }//GEN-LAST:event_nextButtonActionPerformed
     private Insets getInset() {
@@ -239,10 +352,11 @@ public class audioInput extends javax.swing.JFrame {
     private void resetGame() {
         Frame frameArray[] = Frame.getFrames();
         for(int i=0; i < frameArray.length; i++) {
-            if (frameArray[i].getName() != "My Baby :*") {
+            if (frameArray[i].getTitle() != "My Baby :*") {
                 frameArray[i].dispose();
             }
         }
+        timer.setRepeats(false);
     }
     private void startGame() {
         scoreFrame scrfrm = new scoreFrame();
@@ -289,10 +403,10 @@ public class audioInput extends javax.swing.JFrame {
             
         });
         bat autoBatArray[] = {autobat};
-        tick(gameBall, playerBat, autoBatArray, scrfrm);
+        timer = tick(gameBall, playerBat, autoBatArray, scrfrm);
     }
     
-    private void tick(final ball gameBall, final bat playerBat, final bat autoBats[], final scoreFrame scrfrm) {
+    private Timer tick(final ball gameBall, final bat playerBat, final bat autoBats[], final scoreFrame scrfrm) {
         Timer t = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -302,9 +416,13 @@ public class audioInput extends javax.swing.JFrame {
                 autoBats[0].autoMove();
                 if(playerSideHit && !playerHit){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 10); }
                 if(autoBatSideHit && !autoBatHit){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 10); }
+                if(scrfrm.getAchooScore() - scrfrm.getLoserScore()>=50) {
+                    nextLevel();
+                }
             }
         });
         t.start();
+        return t;
         
     }
     
@@ -437,7 +555,7 @@ public class audioInput extends javax.swing.JFrame {
     }
     
     /**
-     * @param args the command line arguments
+     * @param args the command line arguments   
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -479,9 +597,9 @@ public class audioInput extends javax.swing.JFrame {
     private javax.swing.JDialog jDialog3;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JInternalFrame jInternalFrame1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton nextButton;
     private javax.swing.JTextArea talkText;
+    private javax.swing.JLabel testLabel;
     // End of variables declaration//GEN-END:variables
 }

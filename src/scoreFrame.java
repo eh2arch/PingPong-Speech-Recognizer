@@ -52,10 +52,10 @@ public class scoreFrame extends javax.swing.JFrame {
         setResizable(false);
 
         achooLabel.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
-        achooLabel.setText("Player1");
+        achooLabel.setText("Achoo");
 
         loserLabel.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
-        loserLabel.setText("Player2");
+        loserLabel.setText("Loser");
 
         achooScore.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
         achooScore.setText("0");
@@ -77,20 +77,19 @@ public class scoreFrame extends javax.swing.JFrame {
                 .addComponent(achooScore)
                 .addGap(88, 88, 88)
                 .addComponent(colonLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
                 .addComponent(loserScore)
                 .addGap(155, 155, 155))
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addComponent(achooLabel)
-                        .addGap(57, 57, 57)
-                        .addComponent(loserLabel))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(167, 167, 167)
-                        .addComponent(jLabel1)))
-                .addContainerGap(89, Short.MAX_VALUE))
+                .addGap(167, 167, 167)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(64, 64, 64)
+                .addComponent(achooLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(loserLabel)
+                .addGap(107, 107, 107))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

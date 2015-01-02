@@ -16,6 +16,7 @@ import edu.cmu.sphinx.frontend.util.Microphone;
 import edu.cmu.sphinx.recognizer.Recognizer;
 import edu.cmu.sphinx.result.Result;
 import edu.cmu.sphinx.util.props.ConfigurationManager;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -23,15 +24,10 @@ import edu.cmu.sphinx.util.props.ConfigurationManager;
  * endpointer, which automatically segments incoming audio into utterances and silences.
  */
 public class SweetVoice {
-
-    public static void main(String[] args) {
+    
+    public String getWords() {
         ConfigurationManager cm;
-
-        if (args.length > 0) {
-            cm = new ConfigurationManager(args[0]);
-        } else {
-            cm = new ConfigurationManager(SweetVoice.class.getResource("helloworld.config.xml"));
-        }
+        cm = new ConfigurationManager(SweetVoice.class.getResource("helloworld.config.xml"));
 
         Recognizer recognizer = (Recognizer) cm.lookup("recognizer");
         recognizer.allocate();
@@ -43,19 +39,23 @@ public class SweetVoice {
             recognizer.deallocate();
             System.exit(1);
         }
-
-        System.out.println("Say those magic words <3\n");
-
+        JOptionPane.showMessageDialog(null,"Start Speaking.");
         // loop the recognition until the programm exits.
-        while (true) {
+//        while (true) {
             Result result = recognizer.recognize();
-
+            String res = " ";
             if (result != null) {
                 String resultText = result.getBestFinalResultNoFiller();             
-                System.out.println("You said: " + resultText + '\n');
+                res = resultText;
             } else {
-                System.out.println("I can't hear what you said.\n");
+//                System.out.println("I can't hear what you said.\n");
+                res = "I can't hear what you said.";
             }
-        }
+//        }
+          return res;
+
+    }
+
+    public static void main(String[] args) {
     }
 }
