@@ -416,7 +416,7 @@ public class audioInput extends javax.swing.JFrame {
                 autoBats[0].autoMove();
                 if(playerSideHit && !playerHit){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 10); }
                 if(autoBatSideHit && !autoBatHit){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 10); }
-                if(scrfrm.getAchooScore() - scrfrm.getLoserScore()>=50) {
+                if(scrfrm.getAchooScore() - scrfrm.getLoserScore()>=10) {
                     nextLevel();
                 }
             }
