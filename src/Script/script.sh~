@@ -1,0 +1,9 @@
+PID=$(pgrep gnome-session)
+export DBUS_SESSION_BUS_ADDRESS=$(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$PID/environ|cut -d= -f2-)
+for file in /home/archit/achooPhotos/*.*
+do
+    name=${file}
+    rr="file:///home/archit/achooPhotos/"$name
+    gsettings set org.gnome.desktop.background picture-uri "$rr"
+    sleep 10
+done
