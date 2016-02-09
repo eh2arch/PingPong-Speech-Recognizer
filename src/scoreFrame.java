@@ -52,10 +52,10 @@ public class scoreFrame extends javax.swing.JFrame {
         setResizable(false);
 
         achooLabel.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
-        achooLabel.setText("Achoo");
+        achooLabel.setText("PLayer1");
 
         loserLabel.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
-        loserLabel.setText("Loser");
+        loserLabel.setText("PLayer2");
 
         achooScore.setFont(new java.awt.Font("Ubuntu", 0, 48)); // NOI18N
         achooScore.setText("0");

@@ -100,7 +100,7 @@ public class audioInput extends javax.swing.JFrame {
     private void startAwesome() {
         String[] loveArray = {"Hi pucchi :*","You're the best thing that ever happened to me","I'm sorry if I'm not good enough for you","I'll never be :P","Yes, this windows is sucky. You can't close it. I designed it that way. Deal with it :P"};
         ArrayList<String> text = new ArrayList<>(Arrays.asList(loveArray));
-        getDelay(3,text, true, false);
+        getDelay(0,text, true, false);
     }
     
     private void nextButtonListeningPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -326,7 +326,7 @@ public class audioInput extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(107, 63, 127, 70);
         getContentPane().add(jScrollPane1, gridBagConstraints);
 
-        nextButton.setText("Click to continue :*");
+        nextButton.setText("Click to Play");
         nextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextButtonActionPerformed(evt);
@@ -416,9 +416,9 @@ public class audioInput extends javax.swing.JFrame {
                 autoBats[0].autoMove();
                 if(playerSideHit && !playerHit){ scrfrm.setLoserScore(scrfrm.getLoserScore() + 10); }
                 if(autoBatSideHit && !autoBatHit){ scrfrm.setAchooScore(scrfrm.getAchooScore() + 10); }
-                if(scrfrm.getAchooScore() - scrfrm.getLoserScore()>=10) {
-                    nextLevel();
-                }
+//                if(scrfrm.getAchooScore() - scrfrm.getLoserScore()>=10) {
+//                    nextLevel();
+//                }
             }
         });
         t.start();
